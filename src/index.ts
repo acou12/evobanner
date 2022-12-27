@@ -40,11 +40,26 @@ image.onload = () => {
           x + PATTERN_WIDTH,
           y + PATTERN_HEIGHT
         );
+        // const patternCanvas = document.createElement("canvas");
+        // patternCanvas.width = PATTERN_WIDTH;
+        // patternCanvas.height = PATTERN_HEIGHT;
+        // const patternCanvasC = patternCanvas.getContext("2d")!;
+        // patternCanvasC.putImageData(
+        //   tinted(pattern, Math.floor(Math.random() * 0xffffff)),
+        //   0,
+        //   0
+        // );
         patterns.push(pattern);
       }
     }
 
     c.clearRect(0, 0, canvas.width, canvas.height);
+
+    // for (let x = 0; x < canvas.width; x += PATTERN_WIDTH) {
+    //   for (let y = 0; y < canvas.height; y += PATTERN_HEIGHT) {
+    //     drawBanner(randomBanner(), x, y);
+    //   }
+    // }
 
     c.drawImage(reference, 0, 0);
     referenceData = c.getImageData(0, 0, 20, 40);
@@ -63,7 +78,6 @@ image.onload = () => {
 
     // drawBanner(bestBanner!, 0, 0);
     // console.log(lowestFitness);
-
     for (let i = 0; i < 100; i++) {
       banners.push(randomBanner());
     }
@@ -121,6 +135,9 @@ const fitness = (banner: Banner) => {
     fitness += Math.abs(data.data[i] - referenceData.data[i]);
     fitness += Math.abs(data.data[i + 1] - referenceData.data[i + 1]);
     fitness += Math.abs(data.data[i + 2] - referenceData.data[i + 2]);
+    // fitness += Math.abs(data.data[i] - 255 * (i / data.data.length));
+    // fitness += Math.abs(data.data[i + 1]);
+    // fitness += Math.abs(data.data[i + 2]);
   }
   return fitness;
 };
@@ -140,7 +157,7 @@ const MUTATION_RATE = 0.1;
 
 const mutate = (banner: Banner) => {
   let newBanner = cloneBanner(banner);
-  let mutation = Math.floor(Math.random() * 4);
+  const mutation = Math.floor(Math.random() * 4);
   if (mutation == 0)
     do {
       // Insert
@@ -151,7 +168,7 @@ const mutate = (banner: Banner) => {
         ...newBanner.slice(index, newBanner.length),
       ];
     } while (Math.random() < MUTATION_RATE);
-  if (mutation == 1 && newBanner.length > 1)
+  if (mutation == 1)
     do {
       // Delete
       const index = Math.floor(Math.random() * newBanner.length);
@@ -210,13 +227,13 @@ Evolution process:
 
 1. Selection: 
 - Pick best half for selection and randomly assign parents.
-- Choose indicies using an exponential distribution to give lesser 
-  fit organisms a chance to survive.
+- Choose indicies using exponential distribution to have a non-zero chance of
+  lesser fit organisms to survive.
 2. Recombination: 
 - Order-based crossover?
 -- Let n = min(n1, n2). Then, choose a random int c in [0, n) and 
    construct the banner [p1[0, c), p2[c, n)]
-- Randomly select from parents.
+- Random crossover.
 3. Mutation: One or more of the following:
 - Adjust color of a pattern slightly (color adjacentcy will be defined).
 - Add a new, random pattern.
